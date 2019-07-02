@@ -26,7 +26,8 @@ instead of
 ### After succesfully installing Requirements
 
 1.edit config.json , this is a simple json file to set username and password or to change other defualt settings (it is self explanatory)  
-ex :- headless : "False"  #browser runs in full GUI mode (You can view the browser in Action !)  followersToAdd : 20  #number of defualt followers to Add  
+ex :- headless : "False"  #browser runs in full GUI mode (You can view the browser in Action !)  
+      followersToAdd : 20  #number of defualt followers to Add  
 
 2.Run the Script by -  
 ```
