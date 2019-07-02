@@ -221,6 +221,6 @@ if __name__ == "__main__":
     Login()
     if login:
         #AddFollowers()
-        pass
+        pass #comment pass and uncomment AddFollowers() to add followers
     RemoveFollowers()
     Close()
