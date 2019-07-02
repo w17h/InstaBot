@@ -41,5 +41,5 @@ Warning :
   This will be further Improved , and You can contribute too...
     
 THINGS TO ADD:  
-- [ ]statitstics.py to plot and view instagram data  
-- [ ]increase relability to make it work in background (schedule)  
+- [ ] statitstics.py to plot and view instagram data  
+- [ ] increase relability to make it work in background (schedule)  
