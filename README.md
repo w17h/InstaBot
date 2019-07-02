@@ -1,20 +1,25 @@
 # InstaFollowers
 
-Python Automation Script to Add and Remove Follwers in Instagram
+## Python Automation Script to Add and Remove Follwers in Instagram
 
-Requirements:
+#Requirements:
+'''
 Python3.x
 Selenium
 Firefox Browser
 Working Internet connection
-
-note:
- If you have multiple versions of python and want to install selenium to python3 instead of python2 (by default)
- try:
+'''
+### note:
+>If you have multiple versions of python and want to install selenium to python3 instead of python2 (by default)
+try:
+'''
   pip3 install selenium
-instead of
-  pip install selenium
+'''
 
+>instead of
+'''
+  pip install selenium
+'''
 How to use the script :
 
 After succesfully installing Requirements
@@ -26,7 +31,7 @@ ex :- headless : "False"  #browser runs in full GUI mode (You can view the brows
   THAT'S IT !
 
 Warning :
-  This is very Badly Written Code so just take this as and example for your instagram bot :)
+  This is very Badly Written Code so just take this as an example for your instagram bot :)
   and also this is barely a working example ( I mean it works on my computer:o)
 AND
  this will be further Improved , and You can contribute too...
