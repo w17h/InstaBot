@@ -2,7 +2,7 @@
 
 ## Python Automation Script to Add and Remove Follwers in Instagram
 
-#Requirements:
+# Requirements:
 '''
 Python3.x
 Selenium
