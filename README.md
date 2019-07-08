@@ -40,7 +40,8 @@ Warning :
   This is very Badly Written Code so just take this as an example for your instagram bot :)  
   and also this is barely a working example ( I mean it works on my computer:o)  
   This will be further Improved , and You can contribute too...
-    
+
 THINGS TO ADD:  
 - [ ] statitstics.py to plot and view instagram data  
 - [ ] increase relability to make it work in background (schedule)  
+- [x] add method to check Internet Connection
