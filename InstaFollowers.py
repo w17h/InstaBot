@@ -1,6 +1,7 @@
 import json
 from datetime import date
 import sys
+import socket
 from selenium.webdriver import Firefox
 from time import sleep
 from selenium import webdriver
@@ -8,28 +9,50 @@ from selenium.webdriver.common.keys import Keys
 import remove
 
 
+def CheckNetwork():
+    testurl = 'www.google.com'
+    try:
+      # see if we can resolve the host name -- tells us if there is
+      # a DNS listening
+      host = socket.gethostbyname(testurl)
+      # connect to the host -- tells us if the host is actually
+      # reachable
+      s = socket.create_connection((host, 80), 2)
+      s.close()
+      return True
+    except:
+       pass
+    return False
 def Close():
     files_opened = [log_file,config_file]
     log_file.write("Exiting Program\nClosing Files\n")
     for file in files_opened:
-        file.close()
+        if file:
+            file.close()
     browser.close()
     sys.exit()
 def Init():
     global config_data
     global config_file
     global log_file
+
     #get script running date
     today_date = str(date.today())
     #append data to log file
     log_file = open("log.txt","a")
     log_file.write(today_date+':\n')
-
+    #check for internet connection
+    response =  CheckNetwork()
+    if not response:
+        log_file.write("No internet Connection\n")
+        Close()
+    log_file.write("Active internet connection Found")
     try:
         config_file = open("config.json","r")
         log_file.write("config.json opened\n")
     except:
         log_file.write("config.json file error\n")
+        Close()
     config_data = json.load(config_file)
 
     #print(config_data)
