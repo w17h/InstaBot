@@ -49,3 +49,8 @@ THINGS TO ADD:
 - [x] statitstics.py to plot and view instagram data and plot it
 - [x] increase relability to make it work in background (schedule)  
 - [x] add method to check Internet Connection
+
+### PRO-TIP :
+
+You Can run this as cron job , make sure you use the headless : True in config file .we dont want   browser window popup in middle while you are working XD . this was the original idea ,to have cron  job
+to automatically do the boring work for me as per my need in config.json , need to build a custom ubuntu server so seee you Byee... cheers ^-^ 
