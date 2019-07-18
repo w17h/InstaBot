@@ -346,8 +346,8 @@ if __name__ == "__main__":
             if config_data["AddFollowers"]=="True":
                 AddFollowers()
 
-        CollectStatisticsData(False)
-        Logout()
+            CollectStatisticsData(False)
+            Logout()
         Close()
     else:
         exit()
