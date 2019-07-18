@@ -1,1 +1,1 @@
-{"username": "username", "password": "password", "headless": "False", "followersToAdd": 30}
+{"username": "username", "password": "password", "headless": "False", "followersToAdd": 10, "unfollowThreshold": 10, "AddFollowers": "False", "RemoveFollowing": "True"}

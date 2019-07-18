@@ -8,6 +8,7 @@ Python3.x
 Selenium
 Firefox Browser
 Working Internet connection
+matplotlib(optional)
 ```
 ### note:
 If you have multiple versions of python and want to install selenium to python3 instead of python2 (by default)
@@ -33,7 +34,10 @@ ex :- headless : "False"  #browser runs in full GUI mode (You can view the brows
 ```
   python3 InstaFollowers.py  
 ```  
-
+3.Ploting Data by -
+```
+  python3 plotstatistics.py
+```
 THAT'S IT !  
 
 Warning :  
@@ -42,6 +46,6 @@ Warning :
   This will be further Improved , and You can contribute too...
 
 THINGS TO ADD:  
-- [ ] statitstics.py to plot and view instagram data  
-- [ ] increase relability to make it work in background (schedule)  
+- [x] statitstics.py to plot and view instagram data and plot it
+- [x] increase relability to make it work in background (schedule)  
 - [x] add method to check Internet Connection
