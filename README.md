@@ -53,4 +53,4 @@ THINGS TO ADD:
 ### PRO-TIP :
 
 You Can run this as cron job , make sure you use the headless : True in config file .we dont want   browser window popup in middle while you are working XD . this was the original idea ,to have cron  job
-to automatically do the boring work for me as per my need in config.json , need to build a custom ubuntu server so seee you Byee... cheers ^-^ 
+to automatically do the boring work for me as per my need in config.json. 
