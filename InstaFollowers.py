@@ -173,7 +173,7 @@ def RemoveFollowing():
     '''
     log_file.write("Followers UserNames Read\n")
     #sleep(4)
-    close_button = browser.find_element_by_css_selector('div button span[aria-label="Close"]')
+    close_button = browser.find_element_by_css_selector('div button svg[aria-label="Close"]')
     close_button.click()
     follow_button_list = browser.find_elements_by_css_selector('ul li a')
     follow_button_list[1].click()#following list button
@@ -235,6 +235,7 @@ def RemoveFollowing():
         if Number_of_following_removed == config_data["unfollowThreshold"]:
             break
         following_table[user].click()
+        print("clicked!!")
         confirmButton_element =  WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.XPATH, '//button[text() = "Unfollow"]')))
         if confirmButton_element:
             confirmButton = browser.find_element_by_xpath('//button[text() = "Unfollow"]')
@@ -252,7 +253,7 @@ def RemoveFollowing():
 
     #unfollow users
 
-    close_button = browser.find_element_by_css_selector('div button span[aria-label="Close"]')
+    close_button = browser.find_element_by_css_selector('div button svg[aria-label="Close"]')
     close_button.click()
 #add following
 def AddFollowing():
@@ -314,7 +315,7 @@ def AddFollowing():
 #logout
 def Logout():
     browser.get("https://www.instagram.com/"+config_data["username"]+"/")
-    settings = browser.find_element_by_css_selector('div button span[aria-label]')
+    settings = browser.find_element_by_css_selector('div button svg[aria-label]')
     settings.click()
     sleep(2)
     logout = browser.find_element_by_xpath('//button[text()="Log Out"]')
@@ -336,6 +337,6 @@ if __name__ == "__main__":
     StartBrowser()
     Login()
     RemoveFollowing()
-    AddFollowing()
+    #AddFollowing()
     Logout()
     Close()
