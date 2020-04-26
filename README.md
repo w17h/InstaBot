@@ -30,6 +30,10 @@ instead of
 
 example :
 
+username : instagram username
+
+password : password in plain text
+
 headless : "False"  #browser runs in full GUI mode (You can view the browser in Action !)  
 
 followersToAdd : 20  #number of defualt followers to Add  
