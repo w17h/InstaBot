@@ -22,6 +22,13 @@ instead of
   pip install selenium
 ```
 
+Works only with good internet connection because a lot in this code depends on string manupulation
+and regex so if pages are not loaded properly then chances of parsing garbage strings are high.
+
+AND
+
+New feature added : check for verified profiles ! control this behaviour in config.json
+
 ### How to use the script :
 
 ### After succesfully installing Requirements
