@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 #final version for instafollwers
 import json
 from datetime import date
@@ -206,15 +208,23 @@ def RemoveFollowing():
     following = []
     following_table = {}
     for user in followingList.find_elements_by_css_selector('li'):
-        userLink = user.find_element_by_css_selector('a[title]').get_attribute('text')
-        #find the corresponding following button and create a dic of key:value = user:following_button
-        follow_button = user.find_element_by_css_selector("div button")
-        following_table[userLink] = follow_button
-        following.append(userLink)
-        '''
-        if (len(following) == number_of_following):
-            break
-        '''
+        #dont remove verified profiles if specified in json
+        if config_data["RemoveVerified"] == "False" :
+            try :
+                user.find_element_by_css_selector('div span[title="Verified"]') #verified profile ->  do not add to list
+            except :
+                userLink = user.find_element_by_css_selector('a[title]').get_attribute('text')
+                #find the corresponding following button and create a dic of key:value = user:following_button
+                follow_button = user.find_element_by_css_selector("div button")
+                following_table[userLink] = follow_button
+                following.append(userLink)
+        else :
+            userLink = user.find_element_by_css_selector('a[title]').get_attribute('text')
+            #find the corresponding following button and create a dic of key:value = user:following_button
+            follow_button = user.find_element_by_css_selector("div button")
+            following_table[userLink] = follow_button
+            following.append(userLink)
+
     '''
     print(following)
     print(len(following))
@@ -235,7 +245,7 @@ def RemoveFollowing():
         if Number_of_following_removed == config_data["unfollowThreshold"]:
             break
         following_table[user].click()
-        print("clicked!!")
+        #print("clicked!!")
         confirmButton_element =  WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.XPATH, '//button[text() = "Unfollow"]')))
         if confirmButton_element:
             confirmButton = browser.find_element_by_xpath('//button[text() = "Unfollow"]')
@@ -315,11 +325,17 @@ def AddFollowing():
 #logout
 def Logout():
     browser.get("https://www.instagram.com/"+config_data["username"]+"/")
-    settings = browser.find_element_by_css_selector('div button svg[aria-label]')
-    settings.click()
-    sleep(2)
-    logout = browser.find_element_by_xpath('//button[text()="Log Out"]')
-    logout.click()
+    if WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div button svg[aria-label]'))):
+        settings = browser.find_element_by_css_selector('div button svg[aria-label]')
+        settings.click()
+        if WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.XPATH, '//button[text()="Log Out"]'))):
+            logout = browser.find_element_by_xpath('//button[text()="Log Out"]')
+            logout.click()
+        else:
+            log_file("Element Changed : Log Out\n")
+    else:
+        log_file.write("Element Changed : Settings\n")
+
 #close and exit
 def Close():
     stat_file = open("statistics.json","w")
@@ -336,7 +352,9 @@ if __name__ == "__main__":
     Init()
     StartBrowser()
     Login()
-    RemoveFollowing()
-    #AddFollowing()
+    if config_data["AddFollowers"] == "True" :
+        AddFollowing()
+    if config_data["RemoveFollowing"] == "True" :
+        RemoveFollowing()
     Logout()
     Close()
