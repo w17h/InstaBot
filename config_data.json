@@ -1,5 +1,8 @@
 {
-  "username": "puneeth_prajwal",
-  "password": "testaccount@123",
-  "headless": "False"
+  "username": "username",
+  "password": "password",
+  "headless": "False",
+  "addFollowers" : "True",
+  "random_add" : "True",
+  "max_follower_add" : 10
 }
