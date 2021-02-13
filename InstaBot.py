@@ -14,9 +14,14 @@ import json
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver import Firefox
 from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
+from random import randint
+from random import shuffle
 import time
 
 # global contants
@@ -41,7 +46,10 @@ message_store = {
 "NAME_UNAME_FAIL" : "NAME : 'username' not Found\n",
 "LOGIN_SUCC" : "Login succesful\n",
 "LOGIN_FAILED" : "Login Failed Invalid username or password \n",
-"XPATH_FOLLOWERS" : "XPATH : username/followers not Found\n"
+"XPATH_FOLLOWERS" : "XPATH : username/followers not Found\n",
+"XPATH_EXPLORE" : "XPATH : explore not found\n",
+"XPATH_SUGGETED_WINDOW" : "XPATH : suggested not found\n",
+"FOLLOWING_ADD_SUCC" : "Following added\n"
 }
 
 # statistics store
@@ -59,6 +67,14 @@ name_password = "password"
 id_loginerror = "slfErrorAlert"
 xpath_followers = "//a[@href='/%s/followers/']/span"
 xpath_following = "//a[@href='/%s/following/']/span"
+xpath_home = "//div/a[@href='/']"
+xpath_explore = "//a[@href='/explore/people/']"
+xpath_suggested_window = "//main[@role='main']"
+xpath_turn_on_notification = "//div/button[text()='Not Now']"
+xpath_suggestion_usernames = "//div/span/a[@href][@title]"
+xpath_follow_buttons = "//button[@type='button'][text()='Follow']"
+css_dialog = "div[role='dialog']"
+css_followers_ing = "div li"
 
 # global vairables
 log_file = open(log_file_path, "a") # append to existing file or create new file
@@ -174,6 +190,55 @@ def collectStatisticsData(browser, username):
     statistics_store['followers'] = int(followers)
     statistics_store['following'] = int(following)
 
+def addRandomFollowers(browser, config_data):
+    # if browser in profile page
+    username = config_data["username"]
+    if browser.current_url != "https://www.instagram.com":
+        # redirect to home page
+        browser.find_element_by_xpath(xpath_home).click() # element is already loaded when collecing statistics
+    # handle turn on notification popup
+    turn_on_button = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.XPATH, xpath_turn_on_notification)))
+    if turn_on_button:
+        turn_on_button.click()
+    # on home page find explore link to add random people
+    try:
+        WebDriverWait(browser, 5).until(EC.presence_of_element_located((By.XPATH, xpath_explore)))
+    except NoSuchElementException:
+        writeLog(ERROR, message_store['XPATH_EXPLORE'])
+    browser.find_element_by_xpath(xpath_explore).click()
+    # load all following suggestion
+    try:
+        browser.find_element_by_xpath(xpath_suggested_window)
+    except NoSuchElementException:
+        writeLog(ERROR, message_store['XPATH_SUGGETED_WINDOW'])
+    prev_height = browser.find_element_by_xpath(xpath_suggested_window).size['height']
+    for _ in range(4):
+        # scroll down
+        actions = ActionChains(browser)
+        actions.key_down(Keys.CONTROL).key_down(Keys.END).perform()
+        time.sleep(3)# TODO : find better method, remove explicit wait
+        # break if prev_height == new_height
+        new_height = browser.find_element_by_xpath(xpath_suggested_window).size['height']
+        if prev_height == new_height:
+            break
+        prev_height = new_height
+    # get data on how many followers to add
+    followers_to_add =  0
+    if config_data["random_add"] == "True":
+        followers_to_add = randint(config_data["max_follower_add"] // 2, config_data["max_follower_add"])
+    else:
+        followers_to_add = config_data["max_follower_add"]
+    # page fully loaded, srap usernames and follow buttons
+    suggestion_window = browser.find_element_by_xpath(xpath_suggested_window)
+    usernames_found = suggestion_window.find_elements_by_xpath(xpath_suggestion_usernames)
+    follow_buttons_found = suggestion_window.find_elements_by_xpath(xpath_follow_buttons)
+    user_map = dict(zip(usernames_found, follow_buttons_found))
+    shuffle(usernames_found)
+    for i in range(followers_to_add):
+        print(usernames_found[i].text)
+        user_map[usernames_found[i]].click()
+        print("clicked !!")
+    writeLog(INFO, message_store["FOLLOWING_ADD_SUCC"])
 ###############End of Utility functions declarations###########################
 
 if __name__ == "__main__":
@@ -188,3 +253,6 @@ if __name__ == "__main__":
     # collect statistics of current logged in user
     collectStatisticsData(browser, config_data['username'])
     # perform actions specified in configuration file
+    if config_data["addFollowers"] == "True":
+        addRandomFollowers(browser, config_data)
+    cleanClose()
