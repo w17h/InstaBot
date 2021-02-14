@@ -41,7 +41,7 @@ flag_store = {
 ERROR : "ERROR",
 INFO : "INFO",
 }
-# message storecat
+# message store
 message_store = {
 "NET_NO" : "No Active Internet Connection found\n",
 "NET_ACT" : "Active Internet Connection found\n",
