@@ -10,6 +10,7 @@
 # imports
 import socket
 from datetime import datetime
+from datetime import date
 import json
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver import Firefox
@@ -23,10 +24,13 @@ from selenium.webdriver.common.keys import Keys
 from random import randint
 from random import shuffle
 import time
+import pickle as pic
+from os import path
 
-# global contants
+# file paths
 log_file_path = "./log.txt"
 config_data_path = "./config_data.json"
+cache_path = "./cache"
 
 # LOG FLAGS
 ERROR = 0
@@ -86,6 +90,13 @@ def getTimeStamp():
     dt = datetime.now()
     timestamp = dt.__str__().split('.')[0] # remove micro seconds
     return timestamp
+
+def getDateStamp():
+    '''
+        return current date only
+    '''
+    dt = date.today()
+    return dt.__str__()
 
 def cleanClose():
     '''
@@ -231,14 +242,35 @@ def addRandomFollowers(browser, config_data):
     # page fully loaded, srap usernames and follow buttons
     suggestion_window = browser.find_element_by_xpath(xpath_suggested_window)
     usernames_found = suggestion_window.find_elements_by_xpath(xpath_suggestion_usernames)
+    usernames_found = [user.text for user in usernames_found] # get text attributes
     follow_buttons_found = suggestion_window.find_elements_by_xpath(xpath_follow_buttons)
     user_map = dict(zip(usernames_found, follow_buttons_found))
     shuffle(usernames_found)
+    users_added = []
     for i in range(followers_to_add):
-        print(usernames_found[i].text)
         user_map[usernames_found[i]].click()
-        print("clicked !!")
+        users_added.append(usernames_found[i])
+    appendCache(users_added)
     writeLog(INFO, message_store["FOLLOWING_ADD_SUCC"])
+    # update statdata for users added
+    statistics_store["addedfollowing"] = len(users_added)
+
+def appendCache(users):
+    dt = getDateStamp()
+    # check if cache file exists
+    cache_data = {}
+    if path.isfile(cache_path):
+        cache_file = open(cache_path, "rb")
+        cache_data = pic.load(cache_file, encoding="bytes") # load previous data if any
+        cache_file.close()
+    try:
+        cache_data[dt] += users # if the script ran more than one time on the same day
+    except KeyError:
+        cache_data[dt] = users
+    cache_file = open(cache_path, "wb") # open file for appends
+    pic.dump(cache_data, cache_file)
+    cache_file.close()
+
 ###############End of Utility functions declarations###########################
 
 if __name__ == "__main__":
