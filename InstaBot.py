@@ -4,7 +4,7 @@
 #comments :
 
 '''
-    Selenium based Instagram BOT, designed to run as cron job in linux environment
+    Selenium based Instagram BOT
 '''
 
 # imports

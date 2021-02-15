@@ -8,3 +8,5 @@
  ||||   ||   ||  ||||    ||||   ||  ||  ||||||    |||    ||||   
 
 ```
+
+Bot for Instagram based on Selenium.
