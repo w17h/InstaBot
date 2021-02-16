@@ -4,5 +4,7 @@
   "headless": "False",
   "addFollowers" : "True",
   "random_add" : "True",
-  "max_follower_add" : 10
+  "max_follower_add" : 10,
+  "removeFollowing" : "True",
+  "daysToWait" : 2
 }

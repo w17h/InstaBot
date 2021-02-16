@@ -65,7 +65,8 @@ statistics_store = {
 }
 
 # browser element and its paths
-login_url = "https://www.instagram.com/accounts/login/"
+url_login = "https://www.instagram.com/accounts/login/"
+url_profile = "https://www.instagram.com/%s/"
 name_username = "username"
 name_password = "password"
 id_loginerror = "slfErrorAlert"
@@ -77,6 +78,8 @@ xpath_suggested_window = "//main[@role='main']"
 xpath_turn_on_notification = "//div/button[text()='Not Now']"
 xpath_suggestion_usernames = "//div/span/a[@href][@title]"
 xpath_follow_buttons = "//button[@type='button'][text()='Follow']"
+xpath_followers_usernames = "//div/span/a[@href][@title]"
+xpath_remove_buttons = "//button[@tabindex='0'][text()='Follow']"
 css_dialog = "div[role='dialog']"
 css_followers_ing = "div li"
 
@@ -164,7 +167,7 @@ def login(browser):
     '''
         login using credentials specified in configuration file
     '''
-    browser.get(login_url)
+    browser.get(url_login)
     try:
         WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.NAME, name_username))) # wait until name:username is found
     except TimeoutException:
@@ -271,6 +274,50 @@ def appendCache(users):
     pic.dump(cache_data, cache_file)
     cache_file.close()
 
+def loadLastRecord():
+    '''
+        return the date of first record in cache
+    '''
+    # check if cache file exists
+    cache_data = {}
+    if path.isfile(cache_path):
+        cache_file = open(cache_path, "rb")
+        cache_data = pic.load(cache_file, encoding="bytes") # load previous data if any
+        cache_file.close()
+        return cache_data.keys().__iter__().__next__() # return first record
+    else:
+        return None
+
+def daysElapsed(config_data):
+    '''
+        check if today - last record days >=  daysToWait
+    '''
+    first_record = loadLastRecord()
+    if(first_record):
+        # record exist
+        first_record_day = datetime.strptime(first_record, "%Y-%m-%d")
+        today = datetime.strptime(date.today().__str__(), "%Y-%m-%d")
+        days_to_wait = config_data["daysToWait"]
+        if((today - first_record_day).days >= days_to_wait): # days have elapsed, contiue to remove cached following
+            return True
+    return False # if no record found or days have not elapsed
+
+def removeCachedFollowing(browser, config_data):
+    '''
+        remove following of cached users, if not found in followers list
+    '''
+    # daysToWait days have elapsed, remove followers from oldest record
+    if(not daysElapsed(config_data)):
+        return # removing following can wait
+    cache_file = open(cache_path, "rb")
+    cache_data = pic.load(cache_file, encoding="bytes") # load previous data if any
+    cache_file.close()
+    remove_date = cache_data.keys().__iter__().__next__()
+    following_to_check = cache_data[remove_date]
+    # load followers page
+    browser.get(url_profile % config_data['username'])
+    # followers logic todo
+
 ###############End of Utility functions declarations###########################
 
 if __name__ == "__main__":
@@ -285,6 +332,8 @@ if __name__ == "__main__":
     # collect statistics of current logged in user
     collectStatisticsData(browser, config_data['username'])
     # perform actions specified in configuration file
-    if config_data["addFollowers"] == "True":
-        addRandomFollowers(browser, config_data)
+    # if config_data["addFollowers"] == "True":
+    #     addRandomFollowers(browser, config_data)
+    if config_data["removeFollowing"] == "True":
+        removeCachedFollowing(browser, config_data)
     cleanClose()
