@@ -31,6 +31,7 @@ from os import path
 log_file_path = "./log.txt"
 config_data_path = "./config_data.json"
 cache_path = "./cache"
+statistics_file_path = "./statistics.csv"
 
 # LOG FLAGS
 ERROR = 0
@@ -41,6 +42,7 @@ flag_store = {
 ERROR : "ERROR",
 INFO : "INFO",
 }
+
 # message store
 message_store = {
 "NET_NO" : "No Active Internet Connection found\n",
@@ -53,7 +55,9 @@ message_store = {
 "XPATH_FOLLOWERS" : "XPATH : username/followers not Found\n",
 "XPATH_EXPLORE" : "XPATH : explore not found\n",
 "XPATH_SUGGETED_WINDOW" : "XPATH : suggested not found\n",
-"FOLLOWING_ADD_SUCC" : "Following added\n"
+"FOLLOWING_ADD_SUCC" : "Following added\n",
+"FOLLOWING_REM_SUCC" : "Following Removed\n",
+"XPATH_FOLLOWING\ERS_WINDOW" : "XPATH : followers/following windows not found\n"
 }
 
 # statistics store
@@ -79,7 +83,10 @@ xpath_turn_on_notification = "//div/button[text()='Not Now']"
 xpath_suggestion_usernames = "//div/span/a[@href][@title]"
 xpath_follow_buttons = "//button[@type='button'][text()='Follow']"
 xpath_followers_usernames = "//div/span/a[@href][@title]"
-xpath_remove_buttons = "//button[@tabindex='0'][text()='Follow']"
+xpath_following_buttons = "//button[text()='Following']"
+xpath_followers_window = "//div[@class]/li"
+xpath_close_followers_window = "//*[local-name() = 'svg'][@aria-label='Close']"
+xpath_unfollow_button = "//button[@tabindex='0'][text()='Unfollow']"
 css_dialog = "div[role='dialog']"
 css_followers_ing = "div li"
 
@@ -107,7 +114,11 @@ def cleanClose():
     '''
     # close all open files
     log_file.close()
-    browser.close()
+    try:
+        browser.close()
+    except:
+        # no active browser instance running
+        pass
     exit(0)
 
 def writeLog(flag, message):
@@ -306,17 +317,95 @@ def removeCachedFollowing(browser, config_data):
     '''
         remove following of cached users, if not found in followers list
     '''
-    # daysToWait days have elapsed, remove followers from oldest record
     if(not daysElapsed(config_data)):
         return # removing following can wait
+    # daysToWait days have elapsed, remove followers from oldest record
     cache_file = open(cache_path, "rb")
     cache_data = pic.load(cache_file, encoding="bytes") # load previous data if any
     cache_file.close()
     remove_date = cache_data.keys().__iter__().__next__()
-    following_to_check = cache_data[remove_date]
+    followers_to_check = cache_data[remove_date]
     # load followers page
     browser.get(url_profile % config_data['username'])
-    # followers logic todo
+    # click link to followers
+    followers_button = browser.find_element_by_xpath(xpath_followers % config_data['username'])
+    followers_button.click()
+    # find window containing followers list and focus by clicking it
+    try:
+        WebDriverWait(browser, 5).until(EC.presence_of_element_located((By.XPATH, xpath_followers_window)))
+    except NoSuchElementException:
+        writeLog(ERROR, message_store['XPATH_FOLLOWING\ERS_WINDOW'])
+    followers_window = browser.find_element_by_xpath(xpath_followers_window)
+    followers_window.click()
+    # scroll followers windows to load all followers
+    current_followers_found = len(followers_window.find_elements_by_xpath(xpath_suggestion_usernames))
+    while True:
+        # scroll down
+        actions = ActionChains(browser)
+        actions.key_down(Keys.CONTROL).key_down(Keys.END).perform()
+        time.sleep(3)# TODO : find better method, remove explicit wait
+        # break if prev_height == new_height
+        new_followers_found = len(followers_window.find_elements_by_xpath(xpath_suggestion_usernames))
+        if current_followers_found == new_followers_found:
+            break
+        current_followers_found = new_followers_found
+
+    # cross check followers to check list
+    following_to_remove = []
+    followers = [user.text for user in followers_window.find_elements_by_xpath(xpath_suggestion_usernames)]
+    for f_c in  followers_to_check:
+        if f_c not in followers:
+            following_to_remove.append(f_c)
+    followers_window.find_element_by_xpath(xpath_close_followers_window).click()
+
+    # find all following
+    following_button = browser.find_element_by_xpath(xpath_following % config_data['username'])
+    following_button.click()
+    try:
+        WebDriverWait(browser, 5).until(EC.presence_of_element_located((By.XPATH, xpath_followers_window)))
+    except NoSuchElementException:
+        writeLog(ERROR, message_store['XPATH_FOLLOWING\ERS_WINDOW'])
+    following_window = browser.find_element_by_xpath(xpath_followers_window)
+    following_window.click()
+
+    # scroll followers windows to load all followers
+    current_following_found = len(following_window.find_elements_by_xpath(xpath_suggestion_usernames))
+    while True:
+        # scroll down
+        actions = ActionChains(browser)
+        actions.key_down(Keys.CONTROL).key_down(Keys.END).perform()
+        time.sleep(3)# TODO : find better method, remove explicit wait
+        # break if prev_height == new_height
+        new_following_found = len(following_window.find_elements_by_xpath(xpath_suggestion_usernames))
+        if current_following_found == new_following_found:
+            break
+        current_following_found = new_following_found
+    # remove users followers_to_remove
+    following = [user.text for user in following_window.find_elements_by_xpath(xpath_suggestion_usernames)]
+    following_buttons = following_window.find_elements_by_xpath(xpath_following_buttons)
+    following_map = dict(zip(following, following_buttons))
+    for user in following_to_remove:
+        try:
+            following_map[user].click()
+            following_window.find_element_by_xpath(xpath_unfollow_button).click()
+            time.sleep(2)
+        except KeyError:
+            # user not in Following list (not accepted request or deleted account)
+            pass
+    statistics_store['removed_following'] = len(following_to_remove)
+    writeLog(INFO, message_store['FOLLOWING_REM_SUCC'])
+    # modify cache
+    cache_data.pop(remove_date)
+    cache_file = open(cache_path, "wb")
+    pic.dump(cache_data, cache_file) # load previous data if any
+    cache_file.close()
+
+def writeStatistics():
+    '''
+        write statistics_store data to file ex : .csv
+    '''
+    # TODO 
+    pass
 
 ###############End of Utility functions declarations###########################
 
@@ -332,8 +421,9 @@ if __name__ == "__main__":
     # collect statistics of current logged in user
     collectStatisticsData(browser, config_data['username'])
     # perform actions specified in configuration file
-    # if config_data["addFollowers"] == "True":
-    #     addRandomFollowers(browser, config_data)
+    if config_data["addFollowers"] == "True":
+        addRandomFollowers(browser, config_data)
     if config_data["removeFollowing"] == "True":
         removeCachedFollowing(browser, config_data)
+    writeStatistics()
     cleanClose()
