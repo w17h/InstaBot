@@ -32,6 +32,8 @@ log_file_path = "./log.txt"
 config_data_path = "./config_data.json"
 cache_path = "./cache"
 statistics_file_path = "./statistics.csv"
+stat_columns = "date, followers, following, added_following, removed_following\n"
+stat_write_format = "%s, %d, %d, %d, %d\n"
 
 # LOG FLAGS
 ERROR = 0
@@ -404,8 +406,18 @@ def writeStatistics():
     '''
         write statistics_store data to file ex : .csv
     '''
-    # TODO 
-    pass
+    # check if statistics.csv exists, if not create one with column names
+    # columns : date, followers, following, added_following, removed_following
+    if(not path.isfile(statistics_file_path)):
+        stat_file = open(statistics_file_path, "w")
+        stat_file.write(stat_columns)
+        stat_file.close()
+    # get today date
+    today_date = getDateStamp()
+    # append to existing records
+    stat_file = open(statistics_file_path, "a")
+    stat_file.write(stat_write_format % (today_date, statistics_store['followers'], statistics_store['following'], statistics_store['added_following'], statistics_store['removed_following']))
+    stat_file.close()
 
 ###############End of Utility functions declarations###########################
 
