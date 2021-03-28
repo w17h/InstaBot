@@ -238,17 +238,18 @@ def addRandomFollowers(browser, config_data):
         browser.find_element_by_xpath(xpath_suggested_window)
     except NoSuchElementException:
         writeLog(ERROR, message_store['XPATH_SUGGETED_WINDOW'])
-    prev_height = browser.find_element_by_xpath(xpath_suggested_window).size['height']
-    for _ in range(4):
+    suggestion_window = browser.find_element_by_xpath(xpath_suggested_window)
+    users_found = len(suggestion_window.find_elements_by_xpath(xpath_suggestion_usernames))
+    while True:
         # scroll down
         actions = ActionChains(browser)
         actions.key_down(Keys.CONTROL).key_down(Keys.END).perform()
         time.sleep(3)# TODO : find better method, remove explicit wait
         # break if prev_height == new_height
-        new_height = browser.find_element_by_xpath(xpath_suggested_window).size['height']
-        if prev_height == new_height:
+        new_users_found = len(suggestion_window.find_elements_by_xpath(xpath_suggestion_usernames))
+        if users_found == new_users_found:
             break
-        prev_height = new_height
+        users_found = new_users_found
     # get data on how many followers to add
     followers_to_add =  0
     if config_data["random_add"] == "True":
