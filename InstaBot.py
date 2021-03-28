@@ -311,7 +311,7 @@ def daysElapsed(config_data):
         # record exist
         first_record_day = datetime.strptime(first_record, "%Y-%m-%d")
         today = datetime.strptime(date.today().__str__(), "%Y-%m-%d")
-        days_to_wait = config_data["daysToWait"]
+        days_to_wait = config_data["days_to_wait"]
         if((today - first_record_day).days >= days_to_wait): # days have elapsed, contiue to remove cached following
             return True
     return False # if no record found or days have not elapsed
@@ -434,9 +434,9 @@ if __name__ == "__main__":
     # collect statistics of current logged in user
     collectStatisticsData(browser, config_data['username'])
     # perform actions specified in configuration file
-    if config_data["addFollowers"] == "True":
+    if config_data["add_following"] == "True":
         addRandomFollowers(browser, config_data)
-    if config_data["removeFollowing"] == "True":
+    if config_data["remove_following"] == "True":
         removeCachedFollowing(browser, config_data)
     writeStatistics()
     cleanClose()
