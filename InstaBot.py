@@ -89,8 +89,6 @@ xpath_following_buttons = "//button[text()='Following']"
 xpath_followers_window = "//div[@class]/li"
 xpath_close_followers_window = "//*[local-name() = 'svg'][@aria-label='Close']"
 xpath_unfollow_button = "//button[@tabindex='0'][text()='Unfollow']"
-css_dialog = "div[role='dialog']"
-css_followers_ing = "div li"
 
 # global vairables
 setup_path = path.dirname(path.realpath(__file__)) + "/"
