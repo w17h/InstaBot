@@ -28,10 +28,10 @@ import pickle as pic
 from os import path
 
 # file paths
-log_file_path = "./log.txt"
-config_data_path = "./config_data.json"
-cache_path = "./cache"
-statistics_file_path = "./statistics.csv"
+log_file_path = "log.txt"
+config_data_path = "config_data.json"
+cache_path = "cache"
+statistics_file_path = "statistics.csv"
 stat_columns = "date, followers, following, added_following, removed_following\n"
 stat_write_format = "%s, %d, %d, %d, %d\n"
 
@@ -93,7 +93,8 @@ css_dialog = "div[role='dialog']"
 css_followers_ing = "div li"
 
 # global vairables
-log_file = open(log_file_path, "a") # append to existing file or create new file
+setup_path = path.dirname(path.realpath(__file__)) + "/"
+log_file = open(setup_path + log_file_path, "a") # append to existing file or create new file
 
 def getTimeStamp():
     '''
@@ -154,7 +155,7 @@ def getConfigData():
     '''
         check if config.json is a valid json file and return json data
     '''
-    config_file = open(config_data_path, 'r')
+    config_file = open(setup_path + config_data_path, 'r')
     config_data = ""
     try:
         config_data = json.load(config_file)
@@ -270,21 +271,21 @@ def addRandomFollowers(browser, config_data):
     appendCache(users_added)
     writeLog(INFO, message_store["FOLLOWING_ADD_SUCC"])
     # update statdata for users added
-    statistics_store["addedfollowing"] = len(users_added)
+    statistics_store["added_following"] = len(users_added)
 
 def appendCache(users):
     dt = getDateStamp()
     # check if cache file exists
     cache_data = {}
-    if path.isfile(cache_path):
-        cache_file = open(cache_path, "rb")
+    if path.isfile(setup_path + cache_path):
+        cache_file = open(setup_path + cache_path, "rb")
         cache_data = pic.load(cache_file, encoding="bytes") # load previous data if any
         cache_file.close()
     try:
         cache_data[dt] += users # if the script ran more than one time on the same day
     except KeyError:
         cache_data[dt] = users
-    cache_file = open(cache_path, "wb") # open file for appends
+    cache_file = open(setup_path + cache_path, "wb") # open file for appends
     pic.dump(cache_data, cache_file)
     cache_file.close()
 
@@ -294,8 +295,8 @@ def loadLastRecord():
     '''
     # check if cache file exists
     cache_data = {}
-    if path.isfile(cache_path):
-        cache_file = open(cache_path, "rb")
+    if path.isfile(setup_path + cache_path):
+        cache_file = open(setup_path + cache_path, "rb")
         cache_data = pic.load(cache_file, encoding="bytes") # load previous data if any
         cache_file.close()
         return cache_data.keys().__iter__().__next__() # return first record
@@ -323,7 +324,7 @@ def removeCachedFollowing(browser, config_data):
     if(not daysElapsed(config_data)):
         return # removing following can wait
     # daysToWait days have elapsed, remove followers from oldest record
-    cache_file = open(cache_path, "rb")
+    cache_file = open(setup_path + cache_path, "rb")
     cache_data = pic.load(cache_file, encoding="bytes") # load previous data if any
     cache_file.close()
     remove_date = cache_data.keys().__iter__().__next__()
@@ -409,14 +410,14 @@ def writeStatistics():
     '''
     # check if statistics.csv exists, if not create one with column names
     # columns : date, followers, following, added_following, removed_following
-    if(not path.isfile(statistics_file_path)):
-        stat_file = open(statistics_file_path, "w")
+    if(not path.isfile(setup_path + statistics_file_path)):
+        stat_file = open(setup_path + statistics_file_path, "w")
         stat_file.write(stat_columns)
         stat_file.close()
     # get today date
     today_date = getDateStamp()
     # append to existing records
-    stat_file = open(statistics_file_path, "a")
+    stat_file = open(setup_path + statistics_file_path, "a")
     stat_file.write(stat_write_format % (today_date, statistics_store['followers'], statistics_store['following'], statistics_store['added_following'], statistics_store['removed_following']))
     stat_file.close()
 
