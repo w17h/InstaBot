@@ -398,7 +398,7 @@ def removeCachedFollowing(browser, config_data):
     writeLog(INFO, message_store['FOLLOWING_REM_SUCC'])
     # modify cache
     cache_data.pop(remove_date)
-    cache_file = open(cache_path, "wb")
+    cache_file = open(setup_path + cache_path, "wb")
     pic.dump(cache_data, cache_file) # load previous data if any
     cache_file.close()
 
