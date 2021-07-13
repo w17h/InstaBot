@@ -386,15 +386,17 @@ def removeCachedFollowing(browser, config_data):
     following = [user.text for user in following_window.find_elements_by_xpath(xpath_suggestion_usernames)]
     following_buttons = following_window.find_elements_by_xpath(xpath_following_buttons)
     following_map = dict(zip(following, following_buttons))
+    unfollowed_count = 0
     for user in following_to_remove:
         try:
             following_map[user].click()
             following_window.find_element_by_xpath(xpath_unfollow_button).click()
+            unfollowed_count += 1
             time.sleep(2)
         except KeyError:
             # user not in Following list (not accepted request or deleted account)
             pass
-    statistics_store['removed_following'] = len(following_to_remove)
+    statistics_store['removed_following'] = unfollowed_count
     writeLog(INFO, message_store['FOLLOWING_REM_SUCC'])
     # modify cache
     cache_data.pop(remove_date)
