@@ -297,7 +297,10 @@ def loadLastRecord():
         cache_file = open(setup_path + cache_path, "rb")
         cache_data = pic.load(cache_file, encoding="bytes") # load previous data if any
         cache_file.close()
-        return cache_data.keys().__iter__().__next__() # return first record
+        try:
+            date = cache_data.keys().__iter__().__next__()
+        except StopIteration:
+            return None
     else:
         return None
 
