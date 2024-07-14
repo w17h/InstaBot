@@ -25,14 +25,14 @@ Bot behaviour and user account details can be controlled using json file, key-va
 config.json
 ```
 {
-  "username": "username",
-  "password": "password",
+  "username": "yyyyyyyyttttttt1111111",
+  "password": "Abom6lg058",
   "headless": "True",
   "add_following" : "True",
   "random_add" : "True",
-  "max_follower_add" : 10,
+  "max_follower_add" : 100,
   "remove_following" : "True",
-  "days_to_wait" : 6
+  "days_to_wait" : 0
 }
 ```
 
